@@ -3,7 +3,7 @@ import typing
 import numpy as np
 from galois import GF
 
-import common
+from ciphers import common
 
 
 class Simple:
