@@ -13,7 +13,3 @@ def substitute(matrix: np.ndarray, lookup_table: np.ndarray) -> np.ndarray:
 
 def add(lhs: np.ndarray[int], rhs: np.ndarray[int]) -> np.ndarray[int]:
     return lhs ^ rhs
-
-
-def nameof(variable: typing.Any) -> str:
-    return f'{variable=}'.split('=')[0]
