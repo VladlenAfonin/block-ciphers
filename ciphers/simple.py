@@ -22,13 +22,13 @@ class Simple:
         if key.size != 3 * self._ncells:
             raise ValueError(f'Invalid key size: {key.size}.')
 
-        ciphertext, key = self._prepare_inputs(plaintext, key)
+        state, key = self._prepare_inputs(plaintext, key)
         round_keys = self._key_schedule(key)
 
         for i in range(self._nrounds):
-            ciphertext = self._round(ciphertext, round_keys[i])
+            state = self._round(state, round_keys[i])
 
-        return ciphertext
+        return state
 
     def decrypt(self, ciphertext: np.ndarray[int], key: np.ndarray[int]) -> np.ndarray[int]:
         if ciphertext.size != self._ncells:
@@ -37,13 +37,13 @@ class Simple:
         if key.size != 3 * self._ncells:
             raise ValueError(f'Invalid key size: {key.size}.')
 
-        plaintext, key = self._prepare_inputs(ciphertext, key)
+        state, key = self._prepare_inputs(ciphertext, key)
         round_keys = self._key_schedule(key)[::-1]
 
         for i in range(self._nrounds):
-            plaintext = self._round_inverse(plaintext, round_keys[i])
+            state = self._round_inverse(state, round_keys[i])
 
-        return plaintext
+        return state
 
     def _round(self, previous_state: np.ndarray[int], round_key: np.ndarray[int]) -> np.ndarray[int]:
         state = previous_state.copy()
