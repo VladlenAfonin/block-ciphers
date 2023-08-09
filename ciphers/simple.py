@@ -25,10 +25,10 @@ class Simple:
 
     def encrypt(self, plaintext: np.ndarray[int], key: np.ndarray[int]) -> np.ndarray[int]:
         if plaintext.size != self._ncells:
-            raise ValueError(f'Invalid plaintext size: {plaintext.size}.')
+            raise ValueError(f'Invalid plaintext size: {plaintext.size} cells. Should be {self._ncells} cells.')
 
         if key.size != 3 * self._ncells:
-            raise ValueError(f'Invalid key size: {key.size}.')
+            raise ValueError(f'Invalid key size: {key.size} cells. Should be {3 * self._ncells} cells.')
 
         state, key = self._prepare_inputs(plaintext, key)
         round_keys = self._key_schedule(key)
@@ -40,10 +40,10 @@ class Simple:
 
     def decrypt(self, ciphertext: np.ndarray[int], key: np.ndarray[int]) -> np.ndarray[int]:
         if ciphertext.size != self._ncells:
-            raise ValueError(f'Invalid ciphertext size: {ciphertext.size}.')
+            raise ValueError(f'Invalid ciphertext size: {ciphertext.size} cells. Should be {self._ncells} cells.')
 
         if key.size != 3 * self._ncells:
-            raise ValueError(f'Invalid key size: {key.size}.')
+            raise ValueError(f'Invalid key size: {key.size} cells. Should be {3 * self._ncells} cells.')
 
         state, key = self._prepare_inputs(ciphertext, key)
         round_keys = self._key_schedule(key)[::-1]
@@ -62,9 +62,6 @@ class Simple:
 
         return state
 
-    def _key_schedule(self, key: np.ndarray[int]) -> list[np.ndarray[int]]:
-        return [round_key for round_key in np.split(key, self._nrounds)]
-
     def _round_inverse(self, previous_state: np.ndarray[int], round_key: np.ndarray[int]) -> np.ndarray[int]:
         state = previous_state.copy()
 
@@ -73,6 +70,9 @@ class Simple:
         state = common.add(state, round_key)
 
         return state
+
+    def _key_schedule(self, key: np.ndarray[int]) -> list[np.ndarray[int]]:
+        return [round_key for round_key in np.split(key, self._nrounds)]
 
     def _prepare_inputs(self, *arrays: np.ndarray[int]) -> typing.Iterable[np.ndarray[int]]:
         return (self._gf(array) for array in arrays)
