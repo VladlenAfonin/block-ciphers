@@ -7,10 +7,10 @@ from ciphers import common
 
 
 class Simple:
-    # This 4x4 S-box is involute.
+    # MANTIS involute 4x4 S-box.
     _sbox: np.ndarray[int] = np.array([0xc, 0xa, 0xd, 0x3, 0xe, 0xb, 0xf, 0x7, 0x8, 0x9, 0x1, 0x5, 0x0, 0x2, 0x4, 0x6])
 
-    # This P-box is involute.
+    # Involute P-box from https://www.engr.mun.ca/~howard/PAPERS/ldc_tutorial.pdf.
     _pbox: np.ndarray[int] = np.array([0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15])
 
     _nrounds: int = 3
@@ -58,7 +58,7 @@ class Simple:
 
         state = common.add(state, round_key)
         state = common.substitute(state, self._sbox)
-        state = common.permute(state, self._pbox)  # This is not needed on last round.
+        state = common.permute(state, self._pbox)  # This is not needed on the last round.
 
         return state
 
