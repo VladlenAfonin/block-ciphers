@@ -7,13 +7,21 @@ from ciphers import common
 
 
 class Simple:
+    # This 4x4 S-box is involute.
     _sbox: np.ndarray[int] = np.array([0xc, 0xa, 0xd, 0x3, 0xe, 0xb, 0xf, 0x7, 0x8, 0x9, 0x1, 0x5, 0x0, 0x2, 0x4, 0x6])
+
+    # This P-box is involute.
+    _pbox: np.ndarray[int] = np.array([0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15])
+
     _nrounds: int = 3
+
+    # This is connected to S-box size.
     _nbits: int = 4
+
+    # This is connected to P-box size.
     _ncells: int = 16
 
-    def __init__(self) -> None:
-        self._gf = GF(2 ** self._nbits)
+    _gf = GF(2 ** _nbits)
 
     def encrypt(self, plaintext: np.ndarray[int], key: np.ndarray[int]) -> np.ndarray[int]:
         if plaintext.size != self._ncells:
@@ -48,8 +56,9 @@ class Simple:
     def _round(self, previous_state: np.ndarray[int], round_key: np.ndarray[int]) -> np.ndarray[int]:
         state = previous_state.copy()
 
-        state = common.substitute(state, self._sbox)
         state = common.add(state, round_key)
+        state = common.substitute(state, self._sbox)
+        state = common.permute(state, self._pbox)  # This is not needed on last round.
 
         return state
 
@@ -59,8 +68,9 @@ class Simple:
     def _round_inverse(self, previous_state: np.ndarray[int], round_key: np.ndarray[int]) -> np.ndarray[int]:
         state = previous_state.copy()
 
-        state = common.add(state, round_key)
+        state = common.permute(state, self._pbox)
         state = common.substitute(state, self._sbox)
+        state = common.add(state, round_key)
 
         return state
 
