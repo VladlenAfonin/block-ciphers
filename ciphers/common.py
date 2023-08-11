@@ -32,6 +32,14 @@ def split_int(number: int, mask_size: int, number_length: int) -> np.ndarray[int
     return np.array([(number & (mask << (mask_size * i))) >> (i * mask_size) for i in range(nsplit)])[::-1]
 
 
+def array2int(array: np.ndarray[int], cell_size: int) -> int:
+    result = 0
+    with np.nditer(array) as iterator:
+        for sub_number in iterator:
+            result |= sub_number << (cell_size * (array.size - 1) - iterator.iterindex * cell_size)
+    return result
+
+
 def hex_string_to_cells(hex_string: str, ncells: int, nbits: int) -> np.ndarray[int]:
     number = int(hex_string, 16)
     return split_int(number, nbits, ncells * nbits)
