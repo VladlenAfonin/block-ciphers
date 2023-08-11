@@ -7,6 +7,19 @@ from ciphers import common
 
 
 class Simple:
+    """
+    Simple 3-round 64-bit block cipher with 192-bit key and 4-bit cells inside.
+    It is based on SP-network and consists of ``add_key``
+    Key schedule is k = k0 || k1 || k2, each key is 64 bit.
+
+    **Examples**
+
+    >>> simple = Simple()
+    >>> plaintext = np.array([0x1, 0x2, 0x3, 0x4, 0x1, 0x2, 0x3, 0x2, 0x1, 0x2, 0x3, 0x4, 0x1, 0x2, 0x3, 0x2])
+    >>> import secrets
+    >>> key = np.array([secrets.randbits(4) for _ in range(48)])  # 4 * 48 = 3 * 64 = 3 * (plaintext size)
+    >>> simple.encrypt(plaintext, key)
+    """
     # MANTIS involute 4x4 S-box.
     _sbox: np.ndarray[int] = np.array([0xc, 0xa, 0xd, 0x3, 0xe, 0xb, 0xf, 0x7, 0x8, 0x9, 0x1, 0x5, 0x0, 0x2, 0x4, 0x6])
 
