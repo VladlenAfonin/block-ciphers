@@ -77,7 +77,8 @@ def rotate_left(number: int, number_size_bits: int, amount: int) -> int:
 
 
 def get_mask(mask_size: int, bit_indices: typing.Union[list[int], None] = None) -> int:
-    """Creates a mask with either all or given bits set.
+    """
+    Creates a mask with either all or given bits set.
 
     **Examples**
 
@@ -106,7 +107,8 @@ def get_mask(mask_size: int, bit_indices: typing.Union[list[int], None] = None) 
 
 
 class FixedBitsIterator:
-    """Iterate over certain bits in numbers of given size.
+    """
+    Iterate over certain bits in numbers of given size.
 
     **Examples**
 
@@ -132,9 +134,7 @@ class FixedBitsIterator:
         return self
 
     def _initial_fill(self):
-        """
-        Initialize text.
-        """
+        """Initialize text."""
 
         # TODO: Add arbitrary initial fill as int.
         return get_mask(self._text_size_bits) if self._fixed_bits_value == 1 else 0
