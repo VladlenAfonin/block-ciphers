@@ -46,6 +46,22 @@ def hex_string_to_cells(hex_string: str, ncells: int, nbits: int) -> np.ndarray[
 
 
 def rotate_left(number: int, number_size_bits: int, amount: int) -> int:
+    """
+    Rotate bits of number to the left by given amount.
+
+    **Examples**
+
+    >>> rotate_left(0b0100, 4, 3)
+    2  # 0b0010
+    >>> rotate_left(0b0100, 4, 7)
+    2  # 0b0010
+
+    :param number: number to rotate.
+    :param number_size_bits: number bit size.
+    :param amount: how much to rotate.
+    :returns: rotated number.
+    """
+
     amount %= number_size_bits
     mask = get_mask(number_size_bits)
     return mask & (number << amount) | (number >> (number_size_bits - amount))
@@ -83,7 +99,7 @@ def get_mask(mask_size: int, bit_indices: typing.Union[list[int], None] = None) 
 class FixedBitsIterator:
     """Iterate over certain bits in numbers of given size.
 
-    **Example**
+    **Examples**
 
     >>> fbi = FixedBitsIterator(4, [0, 2], 0)
     >>> [f'{text:04b}' for text in fbi]
@@ -106,13 +122,22 @@ class FixedBitsIterator:
         self._counter = -1
         return self
 
+    def _initial_fill(self):
+        """
+        Initialize text.
+        """
+
+        # TODO: Add arbitrary initial fill as int.
+        return get_mask(self._text_size_bits) if self._fixed_bits_value == 1 else 0
+
     def __next__(self):
         self._counter += 1
 
         if self._counter == self._range:
             raise StopIteration
 
-        text = get_mask(self._text_size_bits) if self._fixed_bits_value == 1 else 0
+        text = self._initial_fill()
+
         for i, bit_index in enumerate(self._iterator_bit_indices):
             counter_bit = (self._counter >> i) & 1
             text ^= counter_bit << (self._text_size_bits - bit_index - 1)
