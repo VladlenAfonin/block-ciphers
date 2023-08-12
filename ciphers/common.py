@@ -23,13 +23,22 @@ def add(lhs: np.ndarray[int], rhs: np.ndarray[int]) -> np.ndarray[int]:
     return lhs ^ rhs
 
 
-def split_int(number: int, mask_size: int, number_length: int) -> np.ndarray[int]:
-    if number_length % mask_size != 0:
-        raise ValueError('Number length must be multiple of mask size.')
+def int2array(number: int, cells_amount: int, cell_size_bits: int) -> np.ndarray[int]:
+    """
+    Split integer into array of integers by bits.
 
-    nsplit = number_length // mask_size
-    mask = get_mask(mask_size)
-    return np.array([(number & (mask << (mask_size * i))) >> (i * mask_size) for i in range(nsplit)])[::-1]
+    **Examples**
+
+    >>> int2array(0b_1001_0110, 2, 4)
+    [9, 6]  # [0b1001, 0b0110]
+
+    :param number: number to split.
+    :param cells_amount: number of array elements to generate.
+    :param cell_size_bits: array individual cell size in bits.
+    """
+
+    mask = get_mask(cell_size_bits)
+    return np.array([(number & (mask << (cell_size_bits * i))) >> (i * cell_size_bits) for i in range(cells_amount)])[::-1]
 
 
 def array2int(array: np.ndarray[int], cell_size: int) -> int:
@@ -42,7 +51,7 @@ def array2int(array: np.ndarray[int], cell_size: int) -> int:
 
 def hex_string_to_cells(hex_string: str, ncells: int, nbits: int) -> np.ndarray[int]:
     number = int(hex_string, 16)
-    return split_int(number, nbits, ncells * nbits)
+    return int2array(number, ncells, nbits)
 
 
 def rotate_left(number: int, number_size_bits: int, amount: int) -> int:

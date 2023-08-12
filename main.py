@@ -31,18 +31,18 @@ def main():
 
     s = {}
     for key in key_iterator:
-        key_array = common.split_int(key, 4, key_size_half)
+        key_array = common.int2array(key, 4, 4)
         ct = simple.encrypt_rounds(target_plaintext, [key_array], 1)
         s[ct] = key
 
     for key in key_iterator:
-        key_array = common.split_int(key, 4, key_size_half)
+        key_array = common.int2array(key, 4, 4)
         pt = simple.decrypt_rounds(target_ciphertext, [key_array], 1)
 
         if pt not in s.keys():
             continue
 
-        master_key = np.hstack([common.split_int(s[pt], 4, key_size_half), key_array])
+        master_key = np.hstack([common.int2array(s[pt], 4, 4), key_array])
         if np.all(simple.encrypt(target_plaintext2, master_key) == target_ciphertext2):
             if np.all(simple.encrypt(target_plaintext3, master_key) == target_ciphertext3):
                 print(master_key)
