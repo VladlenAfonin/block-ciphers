@@ -15,14 +15,15 @@ def main():
     simple = Simple()
 
     target_key = np.array([4, 5, 4, 1, 2, 15, 0, 12])
-    target_plaintext = np.array([1, 2, 3, 4])
-    target_plaintext2 = np.array([2, 3, 4, 5])
-    target_plaintext3 = np.array([0, 0, 0, 0])
-    target_ciphertext2 = np.array([3, 6, 3, 0])
-    target_ciphertext = np.array([7, 7, 8, 9])
-    target_ciphertext3 = simple.encrypt(target_plaintext3, target_key)
 
-    # c1 = common.split_int(simple.encrypt_rounds(target_plaintext, [target_key[:4]], 1), 4, 16)
+    target_plaintext = np.array([1, 2, 3, 4])
+    target_ciphertext = np.array([7, 7, 8, 9])
+
+    target_plaintext2 = np.array([2, 3, 4, 5])
+    target_ciphertext2 = np.array([3, 6, 3, 0])
+
+    target_plaintext3 = np.array([0, 0, 0, 0])
+    target_ciphertext3 = np.array([13, 5, 10, 8])
 
     key_size = 32
     key_size_half = key_size // 2
