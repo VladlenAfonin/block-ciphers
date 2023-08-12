@@ -53,8 +53,7 @@ class Simple:
         return state
 
     def encrypt_rounds(self, plaintext: np.ndarray[int], round_keys: list[np.ndarray[int]], nrounds: int) -> int:
-        state, = self._prepare_inputs(plaintext)
-        keys = list(self._prepare_inputs(*round_keys))
+        state, *keys = self._prepare_inputs(plaintext, *round_keys)
 
         for i in range(nrounds):
             state = self._round(state, keys[i])
@@ -62,8 +61,7 @@ class Simple:
         return common.array2int(state, self._nbits)
 
     def decrypt_rounds(self, ciphertext: np.ndarray[int], round_keys: list[np.ndarray[int]], nrounds: int) -> int:
-        state, = self._prepare_inputs(ciphertext)
-        keys = list(self._prepare_inputs(*round_keys))[::-1]
+        state, *keys = self._prepare_inputs(ciphertext, *round_keys[::-1])
 
         for i in range(nrounds):
             state = self._round_inverse(state, keys[i])
@@ -107,4 +105,17 @@ class Simple:
         return [round_key for round_key in np.split(key, self._nrounds)]
 
     def _prepare_inputs(self, *arrays: np.ndarray[int]) -> typing.Iterable[np.ndarray[int]]:
+        """
+        Prepare inputs for usage inside block cipher.
+
+        **Examples**
+
+        ``x, *y = self._prepare_inputs([1, 2, 3], [[2, 3, 4], [3, 4, 5]])`` yields ``x = processed [1, 2, 3]`` and
+        ``y = [processed [2, 3, 4], processed [3, 4, 5]]``
+
+        :param arrays: input arrays to be processed.
+        :returns: processed arrays in the same order they were passed.
+        """
+
+        # TODO: Accept ints and convert them to arrays.
         return (self._gf(array) for array in arrays)
