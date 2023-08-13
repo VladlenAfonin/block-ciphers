@@ -118,4 +118,14 @@ class Simple:
         """
 
         # TODO: Accept ints and convert them to arrays.
-        return (self._gf(array) for array in arrays)
+        return (self._prepare_input(array) for array in arrays)
+
+    def _prepare_input(self, array: np.ndarray[int]) -> np.ndarray[int]:
+        """
+        Convert array elements to Galois field elements.
+
+        :param array: array to convert.
+        :returns: converted array.
+        """
+
+        return self._gf(array)
