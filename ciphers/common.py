@@ -46,7 +46,7 @@ def array2int(array: np.ndarray[int], cell_size: int) -> int:
     with np.nditer(array) as iterator:
         for sub_number in iterator:
             result |= sub_number << (cell_size * (array.size - 1) - iterator.iterindex * cell_size)
-    return result
+    return int(result)
 
 
 def hex_string_to_cells(hex_string: str, ncells: int, nbits: int) -> np.ndarray[int]:
