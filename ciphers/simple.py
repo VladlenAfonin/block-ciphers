@@ -37,51 +37,47 @@ class Simple:
 
     _gf = GF(2 ** _nbits)
 
-    def encrypt(self, plaintext: np.ndarray[int], key: np.ndarray[int]) -> np.ndarray[int]:
-        if plaintext.size != self._ncells:
-            raise ValueError(f'Invalid plaintext size: {plaintext.size} cells. Should be {self._ncells} cells.')
+    def encrypt(self, plaintext: int, key: int) -> int:
+        state, = self._to_array(self._ncells, self._nbits, plaintext)
+        key, = self._to_array(self._nrounds * self._ncells, self._nbits, key)
 
-        if key.size != self._nrounds * self._ncells:
-            raise ValueError(f'Invalid key size: {key.size} cells. Should be {self._nrounds * self._ncells} cells.')
-
-        state, key = self._prepare_inputs(plaintext, key)
+        state, key = self._to_gf(state, key)
         round_keys = self._key_schedule(key)
 
         for i in range(self._nrounds):
             state = self._round(state, round_keys[i])
 
-        return state
+        return common.array2int(state, self._nbits)
 
-    def encrypt_rounds(self, plaintext: np.ndarray[int], round_keys: list[np.ndarray[int]], nrounds: int) -> int:
-        state, *keys = self._prepare_inputs(plaintext, *round_keys)
+    def decrypt(self, ciphertext: int, key: int) -> int:
+        state, = self._to_array(self._ncells, self._nbits, ciphertext)
+        key, = self._to_array(self._nrounds * self._ncells, self._nbits, key)
+
+        state, key = self._to_gf(state, key)
+        round_keys = self._key_schedule(key)[::-1]
+
+        for i in range(self._nrounds):
+            state = self._round_inverse(state, round_keys[i])
+
+        return common.array2int(state, self._nbits)
+
+    def encrypt_rounds(self, plaintext: int, round_keys: list[int], nrounds: int) -> int:
+        state, *keys = self._to_array(self._ncells, self._nbits, plaintext, *round_keys)
+        state, *keys = self._to_gf(state, *keys)
 
         for i in range(nrounds):
             state = self._round(state, keys[i])
 
         return common.array2int(state, self._nbits)
 
-    def decrypt_rounds(self, ciphertext: np.ndarray[int], round_keys: list[np.ndarray[int]], nrounds: int) -> int:
-        state, *keys = self._prepare_inputs(ciphertext, *round_keys[::-1])
+    def decrypt_rounds(self, ciphertext: int, round_keys: list[int], nrounds: int) -> int:
+        state, *keys = self._to_array(self._ncells, self._nbits, ciphertext, *round_keys)
+        state, *keys = self._to_gf(state, *keys[::-1])
 
         for i in range(nrounds):
             state = self._round_inverse(state, keys[i])
 
         return common.array2int(state, self._nbits)
-
-    def decrypt(self, ciphertext: np.ndarray[int], key: np.ndarray[int]) -> np.ndarray[int]:
-        if ciphertext.size != self._ncells:
-            raise ValueError(f'Invalid ciphertext size: {ciphertext.size} cells. Should be {self._ncells} cells.')
-
-        if key.size != self._nrounds * self._ncells:
-            raise ValueError(f'Invalid key size: {key.size} cells. Should be {self._nrounds * self._ncells} cells.')
-
-        state, key = self._prepare_inputs(ciphertext, key)
-        round_keys = self._key_schedule(key)[::-1]
-
-        for i in range(self._nrounds):
-            state = self._round_inverse(state, round_keys[i])
-
-        return state
 
     def _round(self, previous_state: np.ndarray[int], round_key: np.ndarray[int]) -> np.ndarray[int]:
         state = previous_state.copy()
@@ -104,28 +100,29 @@ class Simple:
     def _key_schedule(self, key: np.ndarray[int]) -> list[np.ndarray[int]]:
         return [round_key for round_key in np.split(key, self._nrounds)]
 
-    def _prepare_inputs(self, *arrays: np.ndarray[int]) -> typing.Iterable[np.ndarray[int]]:
+    def _to_array(self, cell_amount, cell_size_bits, *numbers: int) -> typing.Iterable[np.ndarray[int]]:
         """
-        Prepare inputs for usage inside block cipher.
+        Convert numbers to arrays.
+
+        :param cell_amount: amount of cells for each array.
+        :param cell_size_bits: each cell bit size.
+        :param numbers: numbers to convert.
+        :returns: iterable of arrays to be unpacked.
+        """
+
+        return (common.int2array(number, cell_amount, cell_size_bits) for number in numbers)
+
+    def _to_gf(self, *arrays: np.ndarray[int]) -> typing.Iterable[np.ndarray[int]]:
+        """
+        Move arrays to GF.
 
         **Examples**
 
-        ``x, *y = self._prepare_inputs([1, 2, 3], [[2, 3, 4], [3, 4, 5]])`` yields ``x = processed [1, 2, 3]`` and
-        ``y = [processed [2, 3, 4], processed [3, 4, 5]]``
+        ``x, *y = self._to_gf([1, 2, 3], [[2, 3, 4], [3, 4, 5]])`` yields ``x = GF([1, 2, 3])`` and
+        ``y = [GF([2, 3, 4]), GF([3, 4, 5]])``
 
         :param arrays: input arrays to be processed.
         :returns: processed arrays in the same order they were passed.
         """
 
-        # TODO: Accept ints and convert them to arrays.
-        return (self._prepare_input(array) for array in arrays)
-
-    def _prepare_input(self, array: np.ndarray[int]) -> np.ndarray[int]:
-        """
-        Convert array elements to Galois field elements.
-
-        :param array: array to convert.
-        :returns: converted array.
-        """
-
-        return self._gf(array)
+        return (self._gf(array) for array in arrays)
