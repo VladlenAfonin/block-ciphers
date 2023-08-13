@@ -4,8 +4,8 @@ import unittest
 from ciphers.simple import Simple
 
 
-class MyTestCase(unittest.TestCase):
-    def test_something(self):
+class TestSimple(unittest.TestCase):
+    def test_identity(self):
         plaintext = secrets.randbits(16)
         key = secrets.randbits(32)
 
