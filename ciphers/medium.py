@@ -18,6 +18,10 @@ class Medium:
     _key_size_bits = 32
     _key_size_bits_half = _key_size_bits // 2
 
+    _round_constants = [
+        np.array([0x1, 0x3, 0x1, 0x9], dtype=int),
+        np.array([0x8, 0xa, 0x2, 0xe], dtype=int),
+    ]
     _sbox: np.ndarray[int] = np.array([0xc, 0xa, 0xd, 0x3, 0xe, 0xb, 0xf, 0x7, 0x8, 0x9, 0x1, 0x5, 0x0, 0x2, 0x4, 0x6])
     _pbox: np.ndarray[int] = np.array([0, 2, 3, 1])
     _pbox_inverse: np.ndarray[int] = np.array([0, 3, 1, 2])
@@ -39,7 +43,7 @@ class Medium:
         state = common.add(state, keys.k0)
         state = common.add(state, keys.k1)
         for i in range(self._nrounds):
-            state = self._round(state, keys.k1)
+            state = self._round(state, keys.k1, self._round_constants[i])
 
         # Middle rounds.
         state = common.substitute(state, self._sbox)
@@ -48,7 +52,7 @@ class Medium:
 
         # Second half.
         for i in range(self._nrounds):
-            state = self._round_inverse(state, keys.k1a)
+            state = self._round_inverse(state, keys.k1a, self._round_constants[self._nrounds - i - 1])
 
         state = common.add(state, keys.k1a)
         state = common.add(state, keys.k0p)
@@ -58,24 +62,24 @@ class Medium:
     def decrypt(self, ciphertext: int, key: int) -> int:
         return self.encrypt(ciphertext, key, use_related_key=True)
 
-    # TODO: Add round constants.
-    def _round(self, previous_state: np.ndarray[int], round_key: np.ndarray[int]) -> np.ndarray[int]:
+    def _round(self, previous_state: np.ndarray[int], round_key: np.ndarray[int], round_constant: np.ndarray[int]) -> np.ndarray[int]:
         state = previous_state.copy()
 
         state = common.substitute(state, self._sbox)
+        state = common.add(state, round_constant)
         state = common.add(state, round_key)
         state = common.permute(state, self._pbox)
         state = common.matrix_multiply(state, self._m)
 
         return state
 
-    # TODO: Add round constants.
-    def _round_inverse(self, previous_state: np.ndarray[int], round_key: np.ndarray[int]) -> np.ndarray[int]:
+    def _round_inverse(self, previous_state: np.ndarray[int], round_key: np.ndarray[int], round_constant: np.ndarray[int]) -> np.ndarray[int]:
         state = previous_state.copy()
 
         state = common.matrix_multiply(state, self._m)
         state = common.permute(state, self._pbox_inverse)
         state = common.add(state, round_key)
+        state = common.add(state, round_constant)
         state = common.substitute(state, self._sbox)
 
         return state
