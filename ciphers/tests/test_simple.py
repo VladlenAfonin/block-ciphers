@@ -5,7 +5,7 @@ from ciphers.simple import Simple
 
 
 class TestSimple(unittest.TestCase):
-    def test_identity(self):
+    def test_correctness(self):
         plaintext = secrets.randbits(16)
         key = secrets.randbits(32)
 
