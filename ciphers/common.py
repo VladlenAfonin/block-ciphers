@@ -23,6 +23,11 @@ def add(lhs: np.ndarray[int], rhs: np.ndarray[int]) -> np.ndarray[int]:
     return lhs ^ rhs
 
 
+def matrix_multiply(vector: np.ndarray[int], matrix: np.ndarray[int]) -> np.ndarray[int]:
+    vector_size_half = vector.size // 2
+    return matrix.dot(vector.reshape((vector_size_half, vector_size_half))).ravel()
+
+
 def int2array(number: int, cells_amount: int, cell_size_bits: int) -> np.ndarray[int]:
     """
     Split integer into array of integers by bits.

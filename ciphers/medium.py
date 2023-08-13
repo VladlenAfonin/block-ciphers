@@ -21,6 +21,7 @@ class Medium:
     _sbox: np.ndarray[int] = np.array([0xc, 0xa, 0xd, 0x3, 0xe, 0xb, 0xf, 0x7, 0x8, 0x9, 0x1, 0x5, 0x0, 0x2, 0x4, 0x6])
     _pbox: np.ndarray[int] = np.array([0, 2, 3, 1])
     _pbox_inverse: np.ndarray[int] = np.array([0, 3, 1, 2])
+    _m = np.array([[0, 1], [1, 0]], dtype=int)
     _alpha = 0b_1001_0101_0010_1110
 
     def encrypt(self, plaintext: int, key: int, use_related_key: bool = False) -> int:
@@ -42,7 +43,7 @@ class Medium:
 
         # Middle rounds.
         state = common.substitute(state, self._sbox)
-        # TODO: Add matrix multiplication.
+        state = common.matrix_multiply(state, self._m)
         state = common.substitute(state, self._sbox)
 
         # Second half.
@@ -64,6 +65,7 @@ class Medium:
         state = common.substitute(state, self._sbox)
         state = common.add(state, round_key)
         state = common.permute(state, self._pbox)
+        state = common.matrix_multiply(state, self._m)
 
         return state
 
@@ -71,6 +73,7 @@ class Medium:
     def _round_inverse(self, previous_state: np.ndarray[int], round_key: np.ndarray[int]) -> np.ndarray[int]:
         state = previous_state.copy()
 
+        state = common.matrix_multiply(state, self._m)
         state = common.permute(state, self._pbox_inverse)
         state = common.add(state, round_key)
         state = common.substitute(state, self._sbox)
