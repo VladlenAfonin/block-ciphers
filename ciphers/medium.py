@@ -82,7 +82,7 @@ class Medium:
         MANTIS key schedule.
 
         :param key: key to expand.
-        :returns: list of keys ``[k0, k1, k0p]``, which are specified in MANTIS paper.
+        :returns: list of keys ``[k0, k1, k0p, k1a]``, which are specified in MANTIS paper.
         """
 
         mask = common.get_mask(self._key_size_bits_half)
