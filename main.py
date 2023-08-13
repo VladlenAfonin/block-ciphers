@@ -3,7 +3,6 @@ import secrets
 import numpy as np
 
 from ciphers import common
-from ciphers.common import FixedBitsIterator
 from ciphers.simple import Simple
 
 
@@ -27,7 +26,7 @@ def main():
 
     key_size = 32
     key_size_half = key_size // 2
-    key_iterator = FixedBitsIterator(key_size_half, list(range(key_size_half)))
+    key_iterator = common.FixedBitsIterator(key_size_half, list(range(key_size_half)))
 
     s = {}
     for key in key_iterator:
