@@ -8,17 +8,17 @@ from ciphers import common
 
 class Simple:
     """
-    Simple 2-round 64-bit block cipher with 192-bit key and 4-bit cells inside.
-    It is based on SP-network and consists of ``add_key``
+    Simple is a 2-round 16-bit block cipher with 32-bit key and 4-bit cells inside.
+    It is based on SP-network and consists of adding key, substitution and permutation.
     Key schedule is k = k0 || k1 || k2, each key is 64 bit.
 
     **Examples**
 
     >>> simple = Simple()
-    >>> plaintext = np.array([0x1, 0x2, 0x3, 0x4, 0x1, 0x2, 0x3, 0x2, 0x1, 0x2, 0x3, 0x4, 0x1, 0x2, 0x3, 0x2])
+    >>> plaintext = 20438  # 0b_0100_1111_1101_0110 = 0x4fd6
     >>> import secrets
-    >>> key = np.array([secrets.randbits(4) for _ in range(32)])  # 4 * 32 = 2 * 64 = 2 * (plaintext size)
-    >>> simple.encrypt(plaintext, key)
+    >>> key = secrets.randbits(32)
+    >>> ciphertext = simple.encrypt(plaintext, key)
     """
 
     # MANTIS involute 4x4 S-box.
