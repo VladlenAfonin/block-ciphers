@@ -42,7 +42,7 @@ class Simple:
             raise ValueError(f'Invalid plaintext size: {plaintext.size} cells. Should be {self._ncells} cells.')
 
         if key.size != self._nrounds * self._ncells:
-            raise ValueError(f'Invalid key size: {key.size} cells. Should be {3 * self._ncells} cells.')
+            raise ValueError(f'Invalid key size: {key.size} cells. Should be {self._nrounds * self._ncells} cells.')
 
         state, key = self._prepare_inputs(plaintext, key)
         round_keys = self._key_schedule(key)
@@ -73,7 +73,7 @@ class Simple:
             raise ValueError(f'Invalid ciphertext size: {ciphertext.size} cells. Should be {self._ncells} cells.')
 
         if key.size != self._nrounds * self._ncells:
-            raise ValueError(f'Invalid key size: {key.size} cells. Should be {3 * self._ncells} cells.')
+            raise ValueError(f'Invalid key size: {key.size} cells. Should be {self._nrounds * self._ncells} cells.')
 
         state, key = self._prepare_inputs(ciphertext, key)
         round_keys = self._key_schedule(key)[::-1]
